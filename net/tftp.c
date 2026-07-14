@@ -295,12 +295,6 @@ static void tftp_show_progress(unsigned long pos, unsigned long total,
 	}
 }
 
-static void tftp_show_complete(unsigned long total)
-{
-	printf("  ");
-	print_size(total, "");
-}
-
 static void tftp_led_tick(void)
 {
 	tftp_led_counter++;
@@ -396,19 +390,8 @@ static void update_block_number(void)
 /* The TFTP get or put is complete */
 static void tftp_complete(void)
 {
-#if defined(CONFIG_HTTPD)
-#ifdef CONFIG_TFTP_TSIZE
-	if (tftp_tsize)
-		tftp_show_complete(tftp_tsize);
-	else
-#endif
-#ifdef CONFIG_CMD_TFTPPUT
-	if (tftp_put_active && save_size)
-		tftp_show_complete(save_size);
-	else
-#endif
 	printf("\r%s: OK  ", tftp_put_active ? "Saving" : "Loading");
-#else
+	print_size(net_boot_file_size, "");
 #ifdef CONFIG_TFTP_TSIZE
 	while (tftp_tsize && tftp_tsize_num_hash < 49) {
 		putc('#');
@@ -416,7 +399,6 @@ static void tftp_complete(void)
 	}
 	puts("  ");
 	print_size(tftp_tsize, "");
-#endif
 #endif
 	time_start = get_timer(time_start);
 	if (time_start > 0) {
